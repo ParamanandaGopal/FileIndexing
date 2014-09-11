@@ -1,0 +1,3 @@
+g++ -c index.cpp
+g++ -c index_test.cpp
+g++ -o index index_test.o index.o
