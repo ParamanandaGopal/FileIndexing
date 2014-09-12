@@ -49,6 +49,11 @@
 			return is_source_file_name_set_;
 			}
 
+		void Index::resetIsSourceFileNameSet(){
+				is_source_file_name_set_ = false;
+		}
+
+
 		void Index::setTargetFileName(const std::string target_file_name){
 				std::string current_flag = "";
 				target_file_name_ = target_file_name;
@@ -67,8 +72,13 @@
 		bool Index::getIsTargetFileNameSet() const {
 			return is_target_file_name_set_;
 			}
+		
+		void Index::resetIsTargetFileNameSet(){
+			is_target_file_name_set_ = false;
 
-		void Index::setNumThreads(int n){
+		}
+
+		void Index::setNumThreads(const int n){
 			std::string current_flag = "";
 			num_threads_ = n;
 			if(n > 0 ){
@@ -90,7 +100,15 @@
 		bool Index::getIsNumThreadsSet() const {
 			return is_num_threads_set_;
 			}
-			
+		
+		bool Index::isReadBufferSet() const {
+			return is_read_buffer_set_;
+		}
+
+		void Index::resetIsReadBufferSet(){
+			is_read_buffer_set_ = false;
+		}
+
 		void Index::setIsReadyToRun(){//Check for all conditionals
 
 			 for(auto i : explicit_list_of_check_flags_ ){ 
@@ -134,7 +152,6 @@
 			std::cout << s << std::endl;
 		}
 		bool Index::isNumber(const std::string s){
-
 			return !s.empty() && std::find_if(s.begin(), 
 	        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 

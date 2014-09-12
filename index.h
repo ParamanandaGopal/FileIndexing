@@ -20,20 +20,27 @@
 		void setSourceFileName(const std::string);
 		std::string getSourceFileName() const;
 		bool getIsSourceFileNameSet() const;
+		void resetIsSourceFileNameSet();
 
 		void setTargetFileName(const std::string);
 		std::string getTargetFileName() const;
 		bool getIsTargetFileNameSet() const;
+		void resetIsTargetFileNameSet();
 
-		void setNumThreads(int n);
+		void setNumThreads(const int n);
 		int getNumThreads() const;
 		bool getIsNumThreadsSet() const;
-		
-		void setReadBufferSize(int n);
+		void resetIsNumThreadsSet();
+
+		void setReadBufferSize(const int n);
 		int getReadBufferSize() const;
 		bool isReadBufferSet() const;//The flag can be set only through setReadBuffer
+		void resetIsReadBufferSet();//change the state to false
+		
 		
 		void setIsReadyToRun();
+		void resetIsReadyToRun();
+		
 		bool isReadyToRun() const;
 	    void IndexHelp();//help file
 	    void IndexError(const std::string);//error function
@@ -49,6 +56,7 @@
 	    int num_threads_;
 	    bool is_num_threads_set_;
 	    int read_buffer_size_;
+	    bool is_read_buffer_set_;
 	    bool is_ready_to_run_;//The indexing function would run based on the true value
 	    std::map < std::string,bool >  run_flag_list_; 
 	    std::vector<std::string> explicit_list_of_check_flags_;
