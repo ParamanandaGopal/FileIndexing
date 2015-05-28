@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 
 	if(argc == 1 || (argc == 2 && (strncmp(argv[help_index],"--help",6) == 0 || strncmp(argv[help_index],"-help",5) == 0 || strncmp(argv[help_index],"help",4) == 0))){
 	
-		std::cout << "./index input_file || ./index input_file output_file" << std::endl;
+		std::cout << "./index input_file || ./index input_file output_file || || ./index input_file output_file input_file || ./index input_file output_file number_of_threads(default 1) || ./index input_file output_file number_of_threads(default 1) buffer_size(~1MB)" << std::endl;
 		return 0;	
 		
 	}
@@ -37,9 +37,9 @@ int main(int argc, char** argv) {
 
 		case 4:
 			source_file_input = argv[1];
-			index.setSourceFileName(source_file_input);
+			index.setSourceFileName(source_file_input);//define on change events
 			target_file_input = argv[2];
-			index.setTargetFileName(target_file_input);
+			index.setTargetFileName(target_file_input); 
 			//check for valid positive integer 
 			if(Index::isNumber(argv[3])){
 				
