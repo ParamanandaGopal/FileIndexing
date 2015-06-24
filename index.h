@@ -47,9 +47,12 @@ class Index {
         void IndexHelp();//help file
         void IndexError(const std::string);//error function
         static bool isNumber(const std::string);
-    
+	
+	static void set_is_verbose(const bool is_verbose) { is_verbose_ = is_verbose; }
+	static bool get_is_verbose()  { return is_verbose_; }
 private:
-    
+	std::string getOutputFileName(const std::string) ;
+	static bool is_verbose_;    
         std::string source_file_name_;
         bool is_source_file_name_set_;
         std::ifstream source_file_;
@@ -64,6 +67,7 @@ private:
         std::map < std::string,bool >  run_flag_list_;
         std::vector<std::string> explicit_list_of_check_flags_;
         boost::signals2::signal<void ()> state_signal_;
+
 };
 
 #endif

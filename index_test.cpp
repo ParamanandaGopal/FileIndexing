@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "index.h"
+#include <include/tclap/CmdLine.h>
 
 int main(int argc, char** argv) {
 
@@ -19,11 +20,20 @@ int main(int argc, char** argv) {
 		
 	}
 	 
+
+
+
 	Index index;
+        index.set_is_verbose(true);
 	
 	switch(argc){
 		case 2:
 			source_file_input = argv[1];
+			index.setSourceFileName(source_file_input);
+
+			std::string output_file_name = getOutputFileName(index.getSourceFileName());
+
+			std::cout << "setting output_file to " << output_file_name << std::endl;
 			index.setSourceFileName(source_file_input);
 
 		break;
@@ -70,7 +80,7 @@ int main(int argc, char** argv) {
 		return -1;
 	} 
 
-	return 0;
+	//return 0;
 	
 	std::ifstream is;
 	is.open("/Users/gobluelabs/buffer.txt",std::ifstream::binary);
@@ -84,7 +94,7 @@ int main(int argc, char** argv) {
 		for(int i = 0; i < length; i++){
 			is.read(&c,1);
 			if(c == '\n')
-				std::cout << "\nnew line print\n" << std::endl;
+				std::cout << std::endl << is.tellg() << std::endl;
 			std::cout << c;
 		}
 		

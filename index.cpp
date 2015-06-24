@@ -1,5 +1,6 @@
 #include "index.h"
 
+bool Index::is_verbose_ = false;
 
 void Index::IndexHelper(){//Helper functions for ctors
 	state_signal_.connect(boost::bind(&Index::setIsReadyToRun,this));
@@ -116,12 +117,15 @@ void Index::resetIsReadBufferSet(){
 }
 
 void Index::setIsReadyToRun(){//Check for all conditionals
+	if(is_verbose_)
+		std::cout << "calling setIsReadyToRun" << std::endl;
 
 	for(auto i : explicit_list_of_check_flags_ ){ 
 
 		if( run_flag_list_[i] != true){
 
 			is_ready_to_run_ = false;
+			std::cout << "flag " << i << " is not set" << std::endl;
 			return;
 		}
 
