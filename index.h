@@ -26,6 +26,7 @@ class Index {
     
         void setTargetFileName(const std::string);
         std::string getTargetFileName() const;
+        std::string getTargetFileName(const std::string) const;
         bool getIsTargetFileNameSet() const;
         void resetIsTargetFileNameSet();
     
@@ -48,10 +49,9 @@ class Index {
         void IndexError(const std::string);//error function
         static bool isNumber(const std::string);
 	
-	static void set_is_verbose(const bool is_verbose) { is_verbose_ = is_verbose; }
-	static bool get_is_verbose()  { return is_verbose_; }
+	static void setIsVerbose(const bool is_verbose) { is_verbose_ = is_verbose; }
+	static bool getIsVerbose()  { return is_verbose_; }
 private:
-	std::string getOutputFileName(const std::string) ;
 	static bool is_verbose_;    
         std::string source_file_name_;
         bool is_source_file_name_set_;

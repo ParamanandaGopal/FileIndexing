@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "index.h"
-#include <include/tclap/CmdLine.h>
+//#include <include/tclap/CmdLine.h>
 
 int main(int argc, char** argv) {
 
@@ -24,16 +24,13 @@ int main(int argc, char** argv) {
 
 
 	Index index;
-        index.set_is_verbose(true);
+        index.setIsVerbose(true);
 	
 	switch(argc){
 		case 2:
 			source_file_input = argv[1];
 			index.setSourceFileName(source_file_input);
-
-			std::string output_file_name = getOutputFileName(index.getSourceFileName());
-
-			std::cout << "setting output_file to " << output_file_name << std::endl;
+			std::cout << "setting output_file to " << index.getTargetFileName(index.getSourceFileName()) << std::endl;
 			index.setSourceFileName(source_file_input);
 
 		break;

@@ -1,5 +1,4 @@
 #include "index.h"
-
 bool Index::is_verbose_ = false;
 
 void Index::IndexHelper(){//Helper functions for ctors
@@ -61,13 +60,19 @@ void Index::setTargetFileName(const std::string target_file_name){
 	is_target_file_name_set_ = true;
 
 	current_flag = "is_target_file_name_set_";
-	run_flag_list_[current_flag] = is_source_file_name_set_;
+	run_flag_list_[current_flag] = is_target_file_name_set_;
 
 	state_signal_();
 }
 
 std::string Index::getTargetFileName() const {
-	return target_file_name_;
+	if(is_target_file_name_set_)
+		return target_file_name_;
+	else throw "Exception at getTargetFileName... variable target_file_name_ not set";
+}
+
+std::string Index::getTargetFileName(const std::string source_file_name) const {
+
 }
 
 bool Index::getIsTargetFileNameSet() const {
@@ -80,7 +85,7 @@ void Index::resetIsTargetFileNameSet(){
 }
 
 unsigned Index::getNumThreadsOnDevice() {//calculate and return the number of threads available on the hardware
-	 return std::thread::hardware_concurrency();
+	return std::thread::hardware_concurrency();
 }
 void Index::setNumThreads(const int n){
 	std::string current_flag = "";
@@ -161,8 +166,10 @@ void Index::IndexHelp(){
 void Index::IndexError(const std::string s){
 	std::cout << s << std::endl;
 }
+
 bool Index::isNumber(const std::string s){
 	return !s.empty() && std::find_if(s.begin(), 
 			s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 
 }
+
