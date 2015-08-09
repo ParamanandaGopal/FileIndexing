@@ -1,7 +1,15 @@
 #include "index.h"
 bool Index::is_verbose_ = false;
 
+void Index::WARNING(const std::string warning_message) {
+	std::cout << "WARNING:" << warning_message << std::endl;
+}
+char Index::getMatchChar() {
+	return match_char_;
+}
+
 void Index::IndexHelper(){//Helper functions for ctors
+	match_char_='\n';
 	state_signal_.connect(boost::bind(&Index::setIsReadyToRun,this));
 
 	std::string current_flag = "";
@@ -26,6 +34,15 @@ void Index::IndexHelper(){//Helper functions for ctors
 }
 
 Index::Index(){//ctor
+	std::string program_path_temp(getenv("PWD"));
+	program_path_=program_path_temp;
+	std::string home_path_temp(getenv("HOME"));
+	home_path_=home_path_temp;
+	resource_path_=program_path_;
+
+	std::cout << "program_path_:" << program_path_ << std::endl;
+	std::cout << "home_path_:" << home_path_ << std::endl;
+	std::cout << "resource_path_:" << resource_path_ << std::endl;
 	IndexHelper();
 }
 
@@ -71,7 +88,10 @@ std::string Index::getTargetFileName() const {
 	else throw "Exception at getTargetFileName... variable target_file_name_ not set";
 }
 
-std::string Index::getTargetFileName(const std::string source_file_name) const {
+std::string Index::createTargetFileName(const std::string source_file_name) {
+	setSourceFileName(source_file_name);
+	setTargetFileName(source_file_name_);
+	return target_file_name_;
 
 }
 
@@ -105,7 +125,7 @@ void Index::setNumThreads(const int n){
 int Index::getNumThreads() const {
 	if(is_num_threads_set_)
 		return num_threads_;
-	else 
+	else
 		throw "num_threads_ variable is not set";
 }
 
@@ -125,7 +145,7 @@ void Index::setIsReadyToRun(){//Check for all conditionals
 	if(is_verbose_)
 		std::cout << "calling setIsReadyToRun" << std::endl;
 
-	for(auto i : explicit_list_of_check_flags_ ){ 
+	for(auto i : explicit_list_of_check_flags_ ){
 
 		if( run_flag_list_[i] != true){
 
@@ -145,7 +165,7 @@ bool Index::isReadyToRun() const {
 
 void Index::IndexHelp(){
 
-	std::cout << "Welcome to file indexing" << std::endl;
+	std::cout << "Welcome to file indexing help" << std::endl;
 
 	std::cout << "ctors Index()" << std::endl;
 
@@ -168,7 +188,7 @@ void Index::IndexError(const std::string s){
 }
 
 bool Index::isNumber(const std::string s){
-	return !s.empty() && std::find_if(s.begin(), 
+	return !s.empty() && std::find_if(s.begin(),
 			s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 
 }
