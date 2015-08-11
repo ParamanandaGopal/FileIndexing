@@ -17,8 +17,8 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 class Index {
-  	public:
-		 void IndexHelper();//Helper function to ctors
+	public:
+		void IndexHelper();//Helper function to ctors
 		Index();
 		char getMatchChar();
 		void setSourceFileName(const std::string);
@@ -49,8 +49,22 @@ class Index {
 		static void setIsVerbose(const bool is_verbose) { is_verbose_ = is_verbose; }
 		static bool getIsVerbose()  { return is_verbose_; }
 		void WARNING(const std::string warning_message);
+
+		void add_thread(boost::shared_ptr<boost::thread>& temp_ptr){
+			thread_vector_.push_back(temp_ptr);
+		}
+		void thread_join() {
+			for(auto it:thread_vector_){
+				if(it->joinable())
+				it->join();
+
+			}
+		}
+		void set_map(long key,long value) {
+		master_index_[key]=value;
+		}
 	private:
-  		static bool is_verbose_;
+		static bool is_verbose_;
 		char match_char_;
 		std::string source_file_name_;
 		bool is_source_file_name_set_;
@@ -70,5 +84,6 @@ class Index {
 		std::string home_path_;//path where the executable is located
 		std::string resource_path_;//path where the executable is located
 		std::vector<boost::shared_ptr<boost::thread>> thread_vector_;
+		std::map<long,long> master_index_;
 };
 #endif
