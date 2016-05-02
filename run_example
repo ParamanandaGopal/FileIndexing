@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+./index_test buffer.txt
