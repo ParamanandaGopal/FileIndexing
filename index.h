@@ -19,6 +19,7 @@
 #include <boost/program_options.hpp>
 class Index {
 	public:
+		static unsigned minimal_multithreaded_byte_limit_;
 		void IndexHelper();//Helper function to ctors
 		Index();
 		char getMatchChar();

@@ -17,7 +17,6 @@ void parse_program_options(int argc, char** argv);
 int main(int argc, char** argv) {
 	std::cout << "parsing program_options" << std::endl;
 	parse_program_options(argc,argv);//A parser for options
-	//exit(0);
 	int help_index = 1;
 	std::string source_file_input;
 	std::string target_file_input;
@@ -73,7 +72,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	num_threads=index.getNumThreadsOnDevice();
-	num_threads=6;
+	num_threads=2;
 	msg("Number of available threads " + boost::lexical_cast<std::string>(num_threads));
 	std::ifstream is;
 	std::string file_name= index.getSourceFileName();
@@ -86,7 +85,7 @@ int main(int argc, char** argv) {
 		is.close();
 		std::vector<std::pair<unsigned,unsigned>> thread_load_limits;
 		unsigned width=length/num_threads;
-		if(width <= 10){
+		if(width <= Index::minimal_multithreaded_byte_limit_){
 			num_threads=1;
 			width=length;
 		}
@@ -112,7 +111,7 @@ int main(int argc, char** argv) {
 			msg("count:" + boost::lexical_cast<std::string>(count));
 			boost::shared_ptr<boost::thread> temp_ptr(
 					new boost::thread([&index,&byte_location_master,it,&length,count](){
-						std::cout << "job no:" << count << std::endl;
+						//	std::cout << "job no:" << count << std::endl;
 						unsigned local_count=count;
 						std::ifstream is;
 						std::string file_name= index.getSourceFileName();
@@ -130,15 +129,14 @@ int main(int argc, char** argv) {
 						if(c[0] == regex)
 						{
 						byte_location.push_back(is.tellg());
-						lock.lock();
-						std::cout << "job:" << local_count << ":";
-						std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
+						//lock.lock();
+						//std::cout << "job:" << local_count << ":";
+						//std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
 
-						std::cout << std::endl;
+						//std::cout << std::endl;
 
-						lock.unlock();
+						//lock.unlock();
 
-						//msg("\n");
 						}} else {
 							is.close();
 						}
@@ -146,8 +144,8 @@ int main(int argc, char** argv) {
 						msg("resource lock " + boost::lexical_cast<std::string>(local_count));
 						lock.lock();
 						byte_location_master[local_count]=byte_location;
-						std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
-						std::cout << std::endl;
+						//std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
+						//std::cout << std::endl;
 						lock.unlock();
 						msg("resource unlock " + boost::lexical_cast<std::string>(local_count));
 						}else {
@@ -169,10 +167,11 @@ int main(int argc, char** argv) {
 				master_index_[k++]=ptr;
 			}
 		}
-		for(auto it:master_index_){
+		/*
+		   for(auto it:master_index_){
 
-			std::cout << it.first << " " << it.second << std::endl;
-		}
+		   std::cout << it.first << " " << it.second << std::endl;
+		   }*/
 		std::cout << "done printing byte location " << std::endl;
 		//	std::string header=file_name  + " " + boost::lexical_cast<std::string>(master_index_.size()) + " " + boost::lexical_cast<std::string>(length) + " " + "\\n";
 		//	print_map(header,master_index_,target_file_input);

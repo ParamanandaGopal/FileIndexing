@@ -1,5 +1,6 @@
 #include "index.h"
 bool Index::is_verbose_ = false;
+unsigned Index::minimal_multithreaded_byte_limit_=1000;//who cares about multi threading for small file
 void Index::WARNING(const std::string warning_message) {
 	std::cout << "WARNING:" << warning_message << std::endl;
 }
