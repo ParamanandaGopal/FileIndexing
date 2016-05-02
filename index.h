@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/program_options.hpp>
 class Index {
 	public:
 		void IndexHelper();//Helper function to ctors
@@ -49,19 +50,17 @@ class Index {
 		static void setIsVerbose(const bool is_verbose) { is_verbose_ = is_verbose; }
 		static bool getIsVerbose()  { return is_verbose_; }
 		void WARNING(const std::string warning_message);
-
 		void add_thread(boost::shared_ptr<boost::thread>& temp_ptr){
 			thread_vector_.push_back(temp_ptr);
 		}
 		void thread_join() {
 			for(auto it:thread_vector_){
 				if(it->joinable())
-				it->join();
-
+					it->join();
 			}
 		}
 		void set_map(long key,long value) {
-		master_index_[key]=value;
+			master_index_[key]=value;
 		}
 	private:
 		static bool is_verbose_;

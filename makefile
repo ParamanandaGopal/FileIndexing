@@ -3,7 +3,7 @@ CC=g++ -std=c++11
 BOOST_INCLUDE_PATH=/usr/local/include
 BOOST_LIB_PATH=/usr/local/lib
 TCLAP_PATH=/usr/local
-LIBS=-lboost_thread-mt -lboost_system-mt -lboost_regex-mt
+LIBS=-lboost_thread-mt -lboost_system-mt -lboost_regex-mt -lboost_program_options-mt
 
 
 ${PROJECT}_test: ${PROJECT}.o ${PROJECT}_test.o

@@ -7,22 +7,17 @@
 #include "index.h"
 #include <tclap/CmdLine.h>
 boost::mutex lock;
-void msg(std::string str) { std::cout << str << std::endl;}
-void default_throw_function(std::string str){
-	throw str;
-}
-void print_map(std::string header, std::map<long,long> map,std::string filename){
-	std::ofstream file(filename.c_str());
-	if(file.good()){
-		file << header << std::endl;
-		for(auto it:map){
-			file << it.first << " " << it.second << std::endl;
-		}
-	} else {
-		default_throw_function("can not open file " + filename + " for writting");
-	}
-}
+void to_cout(const std::vector<std::string> &v);
+void msg(std::string str);
+
+void default_throw_function(std::string str);
+
+void print_map(std::string header, std::map<long,long> map,std::string filename);
+void parse_program_options(int argc, char** argv);
 int main(int argc, char** argv) {
+	std::cout << "parsing program_options" << std::endl;
+	parse_program_options(argc,argv);//A parser for options
+	//exit(0);
 	int help_index = 1;
 	std::string source_file_input;
 	std::string target_file_input;
@@ -78,7 +73,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	num_threads=index.getNumThreadsOnDevice();
-	num_threads=1;
+	num_threads=6;
 	msg("Number of available threads " + boost::lexical_cast<std::string>(num_threads));
 	std::ifstream is;
 	std::string file_name= index.getSourceFileName();
@@ -91,55 +86,68 @@ int main(int argc, char** argv) {
 		is.close();
 		std::vector<std::pair<unsigned,unsigned>> thread_load_limits;
 		unsigned width=length/num_threads;
+		if(width <= 10){
+			num_threads=1;
+			width=length;
+		}
+
 		msg("width " + boost::lexical_cast<std::string>(width));
 		std::pair<unsigned,unsigned> temp_pair;
 		for(unsigned i=0; i< num_threads; i++){
 			temp_pair.first=i*width + 1;
-			temp_pair.second=(i+1)*width;
+			if(i==(num_threads-1))
+				temp_pair.second=length;
+			else
+				temp_pair.second=(i+1)*width;
 			thread_load_limits.push_back(temp_pair);
 		}
-		if(num_threads > 1 && (length%num_threads != 0))
-			if(temp_pair.second < length){
-				temp_pair.first=temp_pair.second + 1;
-				temp_pair.second=length;
-				thread_load_limits.push_back(temp_pair);
-			}
 		msg("printing limits:\n");
 		for(auto it:thread_load_limits){
-			msg(boost::lexical_cast<std::string>(it.first) + " " + boost::lexical_cast<std::string>(it.second) + "\n");
+			msg(boost::lexical_cast<std::string>(it.first) + " " + boost::lexical_cast<std::string>(it.second));
 		}
 		std::map<unsigned,std::vector<unsigned>> byte_location_master;
-
 		int count=0;
 		for(auto it:thread_load_limits){
 			count++;
 			msg("count:" + boost::lexical_cast<std::string>(count));
 			boost::shared_ptr<boost::thread> temp_ptr(
-					new boost::thread([&index,&byte_location_master,&it,&length,&count](){
-						//std::cout << "job " << count << std::endl;
-
+					new boost::thread([&index,&byte_location_master,it,&length,count](){
+						std::cout << "job no:" << count << std::endl;
 						unsigned local_count=count;
 						std::ifstream is;
 						std::string file_name= index.getSourceFileName();
 						is.open(file_name.c_str(),std::ifstream::binary);
 						std::vector<unsigned> byte_location;
 						if(is.good()) {
-						char c;
+						char c[2];
+						char regex='\n';
 						unsigned begin=it.first;
 						unsigned end=it.second;
 						is.seekg(begin);
 						for(unsigned i=begin;i<=end;i++){
-						is.read(&c,1);
+						is.read(c,1);
 						if(!is.eof()){
-						if(c == '\r' ){
+						if(c[0] == regex)
+						{
 						byte_location.push_back(is.tellg());
+						lock.lock();
+						std::cout << "job:" << local_count << ":";
+						std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
+
+						std::cout << std::endl;
+
+						lock.unlock();
+
+						//msg("\n");
 						}} else {
-						is.close();
+							is.close();
 						}
 						}
 						msg("resource lock " + boost::lexical_cast<std::string>(local_count));
 						lock.lock();
 						byte_location_master[local_count]=byte_location;
+						std::copy(byte_location.begin(),byte_location.end(),std::ostream_iterator<int>(std::cout," "));
+						std::cout << std::endl;
 						lock.unlock();
 						msg("resource unlock " + boost::lexical_cast<std::string>(local_count));
 						}else {
@@ -147,25 +155,27 @@ int main(int argc, char** argv) {
 							default_throw_function("error opening file " + file_name);
 						}
 					}));
-
 			index.add_thread(temp_ptr);
 		}
 		msg("joining threads");
 		index.thread_join();
 		msg("thread join complete");
-		unsigned k=0;
+		unsigned long k=0;
 		msg("printing byte locations\n");
-		msg("printing byte_location_maste.size() ");
 		std::cout << byte_location_master.size() << std::endl;
 		std::map<long,long> master_index_;
 		for(auto it:byte_location_master){
 			for(auto ptr:it.second){
-				++k;
-				master_index_[k]=ptr;
+				master_index_[k++]=ptr;
 			}
 		}
-		std::string header=file_name  + " " + boost::lexical_cast<std::string>(master_index_.size()) + " " + boost::lexical_cast<std::string>(length) + " " + "\\n";
-		print_map(header,master_index_,target_file_input);
+		for(auto it:master_index_){
+
+			std::cout << it.first << " " << it.second << std::endl;
+		}
+		std::cout << "done printing byte location " << std::endl;
+		//	std::string header=file_name  + " " + boost::lexical_cast<std::string>(master_index_.size()) + " " + boost::lexical_cast<std::string>(length) + " " + "\\n";
+		//	print_map(header,master_index_,target_file_input);
 	}else {
 		default_throw_function("error opening file " + file_name);
 	}
@@ -173,4 +183,62 @@ int main(int argc, char** argv) {
 	//msg("enter any character to quit ");
 	//char c=getchar();
 	return 0;
+}
+void parse_program_options(int argc, char** argv){
+	try{
+		std::cout << "entering program_options argc " << argc << std::endl;
+		int age;
+		boost::program_options::options_description desc{"Options"};
+		desc.add_options()
+			("help,h", "Help screen")
+			("pi", boost::program_options::value<float>()->implicit_value(3.14f), "Pi")
+			("age", boost::program_options::value<int>(&age), "Age")
+			("phone", boost::program_options::value<std::vector<std::string>>()->multitoken()->zero_tokens()->composing(), "Phone")
+			("unreg", "Unrecognized options");
+		boost::program_options::command_line_parser parser{argc, argv};
+		parser.options(desc).allow_unregistered().style(
+				boost::program_options::command_line_style::default_style |
+				boost::program_options::command_line_style::allow_slash_for_short);
+		boost::program_options::parsed_options parsed_options = parser.run();
+		boost::program_options::variables_map vm;
+		boost::program_options::store(parsed_options, vm);
+		boost::program_options::notify(vm);
+		if (vm.count("help"))
+			std::cout << desc << '\n';
+		else if (vm.count("age"))
+			std::cout << "Age: " << age << '\n';
+		else if (vm.count("phone"))
+			to_cout(vm["phone"].as<std::vector<std::string>>());
+		else if (vm.count("unreg"))
+			to_cout(collect_unrecognized(parsed_options.options,
+						boost::program_options::exclude_positional));
+		else if (vm.count("pi"))
+			std::cout << "Pi: " << vm["pi"].as<float>() << '\n';
+	}
+	catch (const boost::program_options::error &ex)
+	{
+		std::cerr << ex.what() << '\n';
+	}
+
+	std::cout << "done with program options" << '\n';
+}
+void to_cout(const std::vector<std::string> &v)
+{
+	std::copy(v.begin(), v.end(), std::ostream_iterator<std::string>{
+			std::cout, "\n"});
+}
+void msg(std::string str) { std::cout << str << std::endl;}
+void default_throw_function(std::string str){
+	throw str;
+}
+void print_map(std::string header, std::map<long,long> map,std::string filename){
+	std::ofstream file(filename.c_str());
+	if(file.good()){
+		file << header << std::endl;
+		for(auto it:map){
+			file << it.first << " " << it.second << std::endl;
+		}
+	} else {
+		default_throw_function("can not open file " + filename + " for writting");
+	}
 }

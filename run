@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-./index_test buffer.txt buffer_index.txt
+./index_test $@
