@@ -22,7 +22,14 @@ class Index {
 		static unsigned minimal_multithreaded_byte_limit_;
 		void IndexHelper();//Helper function to ctors
 		Index();
+		void createIndex();
 		char getMatchChar();
+		static void to_cout(const std::vector<std::string> &v);
+		static void msg(std::string str);
+		static void default_throw_function(std::string str);
+
+		static void print_map(std::string header, std::map<long,long> map,std::string filename);
+
 		void setSourceFileName(const std::string);
 		std::string getSourceFileName() const;
 		bool getIsSourceFileNameSet() const;
@@ -65,6 +72,8 @@ class Index {
 		}
 	private:
 		static bool is_verbose_;
+
+		static boost::mutex lock;
 		char match_char_;
 		std::string source_file_name_;
 		bool is_source_file_name_set_;

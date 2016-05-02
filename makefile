@@ -1,5 +1,7 @@
 PROJECT=index
-CC=g++ -std=c++11
+CC=g++
+CC += -std=c++11
+CC += -g
 BOOST_INCLUDE_PATH=/usr/local/include
 BOOST_LIB_PATH=/usr/local/lib
 TCLAP_PATH=/usr/local
