@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+git ls-files -m | xargs git add
+msg=$1
+echo "commit msg "$msg
+git commit -m "$msg"
+repo_name=master
+repo_name=$(git branch | sed -n /\*/p | awk '{ split($0,v," "); print v[2];}')
+echo "repo_name:"$repo_name;
+if [ $# -eq 2 ]; then
+repo_name="$2"
+fi
+
+echo "committing to repo "${repo_name}
+git push
