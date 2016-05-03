@@ -1,8 +1,29 @@
 #include "index.h"
 bool Index::is_verbose_ = false;
-
 boost::mutex Index::lock;
+std::string Index::index_ext_=".idx";
+unsigned Index::index_offset_=1;
 unsigned Index::minimal_multithreaded_byte_limit_=1000;//who cares about multi threading for small file
+std::vector<std::string> tokenize(const std::string& s, char c) {
+	auto end = s.cend();
+	auto start = end;
+
+	std::vector<std::string> v;
+	for( auto it = s.cbegin(); it != end; ++it ) {
+		if( *it != c ) {
+			if( start == end )
+				start = it;
+			continue;
+		}
+		if( start != end ) {
+			v.emplace_back(start, it);
+			start = end;
+		}
+	}
+	if( start != end )
+		v.emplace_back(start, end);
+	return v;
+}
 
 void Index::createIndex(){
 	unsigned num_threads_to_run=getNumThreadsOnDevice();
@@ -100,14 +121,9 @@ void Index::createIndex(){
 				master_index_[k++]=ptr;
 			}
 		}
-		/*
-		   for(auto it:master_index_){
-
-		   std::cout << it.first << " " << it.second << std::endl;
-		   }*/
-		std::cout << "done printing byte location " << std::endl;
-		//	std::string header=file_name  + " " + boost::lexical_cast<std::string>(master_index_.size()) + " " + boost::lexical_cast<std::string>(length) + " " + "\\n";
-		//	print_map(header,master_index_,target_file_input);
+		std::cout << "saving results to index file:" << getTargetFileName() << std::endl;
+		std::string header=file_name  + " " + boost::lexical_cast<std::string>(length) + " " + boost::lexical_cast<std::string>(master_index_.size()) +  " " + "\\n";
+		print_map(header,master_index_,getTargetFileName());
 	}else {
 		default_throw_function("error opening file " + file_name);
 	}
@@ -128,7 +144,7 @@ void Index::print_map(std::string header, std::map<long,long> map,std::string fi
 	if(file.good()){
 		file << header << std::endl;
 		for(auto it:map){
-			file << it.first << " " << it.second << std::endl;
+			file << (it.first + index_offset_) << " " << it.second << std::endl;
 		}
 	} else {
 		default_throw_function("can not open file " + filename + " for writting");
@@ -203,9 +219,23 @@ std::string Index::getTargetFileName() const {
 }
 std::string Index::createTargetFileName(const std::string source_file_name) {
 	setSourceFileName(source_file_name);
-	setTargetFileName(source_file_name_);
+	std::string target_file_name_temp=source_file_name;
+	auto target_filename_vector=tokenize(target_file_name_temp,'.');
+	if(target_filename_vector.size() > 0){
+		target_file_name_temp=target_filename_vector[0] + index_ext_;
+	}
+	std::cout << "target_file_name_temp " << target_file_name_temp << std::endl;
+
+	setTargetFileName(target_file_name_temp);
+
 	return target_file_name_;
 }
+std::string Index::createTargetFileName() {
+	createTargetFileName(source_file_name_);
+	return target_file_name_;
+}
+
+
 bool Index::getIsTargetFileNameSet() const {
 	return is_target_file_name_set_;
 }

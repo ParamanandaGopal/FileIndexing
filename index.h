@@ -19,22 +19,24 @@
 #include <boost/program_options.hpp>
 class Index {
 	public:
-		static unsigned minimal_multithreaded_byte_limit_;
 		void IndexHelper();//Helper function to ctors
 		Index();
-		void createIndex();
-		char getMatchChar();
 		static void to_cout(const std::vector<std::string> &v);
 		static void msg(std::string str);
 		static void default_throw_function(std::string str);
-
 		static void print_map(std::string header, std::map<long,long> map,std::string filename);
+		static unsigned minimal_multithreaded_byte_limit_;
+		static bool isNumber(const std::string);
+		static void setIsVerbose(const bool is_verbose) { is_verbose_ = is_verbose; }
+		static bool getIsVerbose()  { return is_verbose_; }
 
+		char getMatchChar();
 		void setSourceFileName(const std::string);
 		std::string getSourceFileName() const;
 		bool getIsSourceFileNameSet() const;
 		void resetIsSourceFileNameSet();
 		std::string createTargetFileName(const std::string);
+		std::string createTargetFileName();
 		std::string getTargetFileName() const;
 		std::string getTargetFileName(const std::string);
 		void setTargetFileName(const std::string);
@@ -54,9 +56,6 @@ class Index {
 		bool isReadyToRun() const;
 		void IndexHelp();//help file
 		void IndexError(const std::string);//error function
-		static bool isNumber(const std::string);
-		static void setIsVerbose(const bool is_verbose) { is_verbose_ = is_verbose; }
-		static bool getIsVerbose()  { return is_verbose_; }
 		void WARNING(const std::string warning_message);
 		void add_thread(boost::shared_ptr<boost::thread>& temp_ptr){
 			thread_vector_.push_back(temp_ptr);
@@ -70,10 +69,12 @@ class Index {
 		void set_map(long key,long value) {
 			master_index_[key]=value;
 		}
+		void createIndex();
 	private:
 		static bool is_verbose_;
-
 		static boost::mutex lock;
+		static std::string index_ext_;
+		static unsigned index_offset_;//index where result starts
 		char match_char_;
 		std::string source_file_name_;
 		bool is_source_file_name_set_;

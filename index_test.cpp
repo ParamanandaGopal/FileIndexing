@@ -67,6 +67,8 @@ int main(int argc, char** argv) {
 		std::cout << "program is not ready to run " << std::endl;
 		return -1;
 	}
+	index.createTargetFileName();
+	std::cout << "target filename:" << index.getTargetFileName() << std::endl;
 	index.createIndex();
 	Index::msg("enter any character to quit ");
 	char c=getchar();
