@@ -4,7 +4,7 @@ boost::mutex Index::lock;
 std::string Index::index_ext_=".idx";
 unsigned Index::index_offset_=1;
 unsigned Index::minimal_multithreaded_byte_limit_=1000;//who cares about multi threading for small file
-std::vector<std::string> tokenize(const std::string& s, char c) {
+std::vector<std::string> tokenize(const std::string& s, char c) {//taken from http://stackoverflow.com/questions/9435385/split-a-string-using-c11
 	auto end = s.cend();
 	auto start = end;
 
